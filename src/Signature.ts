@@ -1,4 +1,3 @@
-import * as EC from 'elliptic';
 import {
     Key,
     KeyType,
