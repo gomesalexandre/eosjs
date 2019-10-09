@@ -269,7 +269,7 @@ export interface Key {
 export function digestFromSerializedData(
     chainId: string,
     serializedTransaction: Uint8Array,
-    serializedContextFreeData: Uint8Array,
+    serializedContextFreeData?: Uint8Array,
     e = new ec('secp256k1')) {
     const signBuf = Buffer.concat([
         new Buffer(chainId, 'hex'),
