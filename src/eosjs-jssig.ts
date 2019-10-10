@@ -3,6 +3,8 @@
  */
 // copyright defined in eosjs/LICENSE.txt
 
+import { ec } from 'elliptic';
+
 import { SignatureProvider, SignatureProviderArgs } from './eosjs-api-interfaces';
 import {
     PrivateKey,
@@ -15,12 +17,10 @@ import {
     KeyType,
 } from './eosjs-numeric';
 
-import { ec } from 'elliptic';
-
 /** Signs transactions using in-process private keys */
 export class JsSignatureProvider implements SignatureProvider {
     /** map public to private keys */
-    public keys = new Map<string, string>();
+    public keys = new Map<string, ec.KeyPair>();
 
     /** public keys */
     public availableKeys = [] as string[];
@@ -31,8 +31,7 @@ export class JsSignatureProvider implements SignatureProvider {
     /** @param privateKeys private keys to sign with */
     constructor(privateKeys: string[]) {
         for (const k of privateKeys) {
-            // What is there to do about this 'as any'?
-            const priv = PrivateKey.fromString(k).toElliptic() as any;
+            const priv = PrivateKey.fromString(k).toElliptic();
             const pubStr = PublicKey.fromElliptic(priv, KeyType.k1).toString();
             this.keys.set(pubStr, priv);
             this.availableKeys.push(pubStr);
@@ -52,7 +51,7 @@ export class JsSignatureProvider implements SignatureProvider {
 
         const signatures = [] as string[];
         for (const key of requiredKeys) {
-            const privKey = this.keys.get(convertLegacyPublicKey(key)) as any;
+            const privKey = this.keys.get(convertLegacyPublicKey(key));
             let tries = 0;
             let sig: Signature;
             const isCanonical = (sigData: Uint8Array) =>
